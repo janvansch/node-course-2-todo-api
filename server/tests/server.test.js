@@ -1,6 +1,6 @@
 const expect = require('expect');
 const request = require('supertest');
-const {ObjectID} = require('mongodb'); // ES6 destructuring
+const {ObjectID} = require('mongodb');
 
 const {app} = require('./../server');
 const {Todo} = require('./../models/todo');
@@ -19,11 +19,11 @@ beforeEach((done) => {
   }).then(() => done());
 });
 
-describe('*** POST /todos', () => {
+describe('POST /todos', () => {
   it('should create a new todo', (done) => {
     var text = 'Test todo text';
 
-    request(app) // supertest
+    request(app)
       .post('/todos')
       .send({text})
       .expect(200)
@@ -44,7 +44,7 @@ describe('*** POST /todos', () => {
   });
 
   it('should not create todo with invalid body data', (done) => {
-    request(app) // supertest
+    request(app)
       .post('/todos')
       .send({})
       .expect(400)
@@ -61,9 +61,9 @@ describe('*** POST /todos', () => {
   });
 });
 
-describe('*** GET /todos', () => {
+describe('GET /todos', () => {
   it('should get all todos', (done) => {
-    request(app) // supertest
+    request(app)
       .get('/todos')
       .expect(200)
       .expect((res) => {
@@ -74,8 +74,8 @@ describe('*** GET /todos', () => {
 });
 
 describe('GET /todos/:id', () => {
-  it('should return todo document', (done) => {
-    request(app) // supertest
+  it('should return todo doc', (done) => {
+    request(app)
       .get(`/todos/${todos[0]._id.toHexString()}`)
       .expect(200)
       .expect((res) => {
@@ -83,16 +83,19 @@ describe('GET /todos/:id', () => {
       })
       .end(done);
   });
-  it('should return 404 if todo is not found', (done) => {
+
+  it('should return 404 if todo not found', (done) => {
     var hexId = new ObjectID().toHexString();
-    request(app) //supertest
+
+    request(app)
       .get(`/todos/${hexId}`)
       .expect(404)
       .end(done);
   });
-  it('should return 404 for _ids with an invalid format', (done) => {
-    request(app) //supertest
-      .get('/todos/123abc') //invalid format _id
+
+  it('should return 404 for non-object ids', (done) => {
+    request(app)
+      .get('/todos/123abc')
       .expect(404)
       .end(done);
   });
