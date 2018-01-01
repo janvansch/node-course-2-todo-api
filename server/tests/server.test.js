@@ -145,7 +145,8 @@ describe('DELETE /todos/:id', () => {
 });
 
 describe('PATCH /todos/:id', () => {
-  it('should update the todo', (done) => {
+
+  it('should update todo 1', (done) => {
     var hexId = todos[0]._id.toHexString();
     var text = 'This should be the new text for 0';
 
@@ -153,7 +154,7 @@ describe('PATCH /todos/:id', () => {
       .patch(`/todos/${hexId}`) // the route
       .send({ // the request body
         completed: true,
-        text: text //or just text in ES6
+        text // ES6 for text: text
       })
       // Assertions - what is the expected result
       .expect(200)
@@ -162,10 +163,10 @@ describe('PATCH /todos/:id', () => {
         expect(res.body.todo.completed).toBe(true);
         expect(res.body.todo.completedAt).toBeA('number');
       })
-      .end(done)
-  })
+      .end(done);
+  });
 
-  it('should update the todo', (done) => {
+  it('should update todo 2', (done) => {
     var hexId = todos[1]._id.toHexString();
     var text = 'This should be the new text for 1';
 
@@ -182,6 +183,6 @@ describe('PATCH /todos/:id', () => {
         expect(res.body.todo.completed).toBe(false);
         expect(res.body.todo.completedAt).toNotExist();
       })
-      .end(done)
-  })
+      .end(done);
+  });
 });
