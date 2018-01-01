@@ -69,8 +69,9 @@ app.delete('/todos/:id', (req, res) => {
 });
 
 app.patch('/todos/:id', (req, res) => {
-  var id = req=params.id;
+  var id = req.params.id;
   // only text and completed can be updated by user
+  // pick selects text & completed from send body - see test case
   var body = _.pick(req.body, ['text', 'completed']);
 
   if (!ObjectID.isValid(id)) {
@@ -94,7 +95,7 @@ app.patch('/todos/:id', (req, res) => {
       return res.status(404).send();
     }
 
-    res.send({todo});
+    res.send({todo}); // the result returned - see test case
 
   }).catch((e) => {
     res.status(400).send();

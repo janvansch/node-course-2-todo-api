@@ -5,14 +5,18 @@ const {ObjectID} = require('mongodb');
 const {app} = require('./../server');
 const {Todo} = require('./../models/todo');
 
+// define test data
 const todos = [{
   _id: new ObjectID(),
   text: 'First test todo'
 }, {
   _id: new ObjectID(),
-  text: 'Second test todo'
+  text: 'Second test todo',
+  completed: true,
+  completedAt: 333
 }];
 
+// clear DB and load test data
 beforeEach((done) => {
   Todo.remove({}).then(() => {
     return Todo.insertMany(todos);
@@ -138,4 +142,46 @@ describe('DELETE /todos/:id', () => {
       .expect(404)
       .end(done);
   });
+});
+
+describe('PATCH /todos/:id', () => {
+  it('should update the todo', (done) => {
+    var hexId = todos[0]._id.toHexString();
+    var text = 'This should be the new text for 0';
+
+    request(app)
+      .patch(`/todos/${hexId}`) // the route
+      .send({ // the request body
+        completed: true,
+        text: text //or just text in ES6
+      })
+      // Assertions - what is the expected result
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.todo.text).toBe(text);
+        expect(res.body.todo.completed).toBe(true);
+        expect(res.body.todo.completedAt).toBeA('number');
+      })
+      .end(done)
+  })
+
+  it('should update the todo', (done) => {
+    var hexId = todos[1]._id.toHexString();
+    var text = 'This should be the new text for 1';
+
+    request(app)
+      .patch(`/todos/${hexId}`) // the route
+      .send({ // the request body
+        completed: false,
+        text: text //or just text in ES6
+      })
+      // Assertions - what is the expected result
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.todo.text).toBe(text);
+        expect(res.body.todo.completed).toBe(false);
+        expect(res.body.todo.completedAt).toNotExist();
+      })
+      .end(done)
+  })
 });
