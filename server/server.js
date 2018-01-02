@@ -1,4 +1,4 @@
-require('./config/config.js');
+require('./config/config');
 
 const _ = require('lodash');
 const express = require('express');
@@ -63,6 +63,7 @@ app.delete('/todos/:id', (req, res) => {
     if (!todo) {
       return res.status(404).send();
     }
+
     res.send({todo});
   }).catch((e) => {
     res.status(400).send();
@@ -71,22 +72,15 @@ app.delete('/todos/:id', (req, res) => {
 
 app.patch('/todos/:id', (req, res) => {
   var id = req.params.id;
-  // only text and completed can be updated by user
-  // pick selects text & completed from send body - see test case
   var body = _.pick(req.body, ['text', 'completed']);
 
   if (!ObjectID.isValid(id)) {
     return res.status(404).send();
   }
 
-  // if completed property is a boolean and is true
   if (_.isBoolean(body.completed) && body.completed) {
-    body.completedAt = new Date().getTime(); // JS Timestamp
-  }
-  // else set completed to false and timestamp to null
-  // this will also happen if not correct boolean
-  // this should be trapped in my opinion
-  else {
+    body.completedAt = new Date().getTime();
+  } else {
     body.completed = false;
     body.completedAt = null;
   }
@@ -96,11 +90,24 @@ app.patch('/todos/:id', (req, res) => {
       return res.status(404).send();
     }
 
-    res.send({todo}); // the result returned - see test case
-
+    res.send({todo});
   }).catch((e) => {
     res.status(400).send();
-  });
+  })
+});
+
+// POST /users
+app.post('/users', (req, res) => {
+  var body = _.pick(req.body, ['email', 'password']);
+  var user = new User(body);
+
+  user.save().then(() => {
+    return user.generateAuthToken();
+  }).then((token) => {
+    res.header('x-auth', token).send(user);
+  }).catch((e) => {
+    res.status(400).send(e);
+  })
 });
 
 app.listen(port, () => {
