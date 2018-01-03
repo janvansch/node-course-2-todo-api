@@ -247,3 +247,62 @@ describe('POST /users', () => {
       .end(done);
   });
 });
+
+describe('POST /users/login', () => {
+  it('should login user and return auth token', (done) => {
+    request(app)
+      // route
+      .post('/users/login')
+      // request
+      .send({
+        email: users[1].email,
+        password: users[1].password
+      })
+      // expected response
+      .expect(200)
+      .expect((res) => {
+        expect(res.headers['x-auth']).toExist();
+      })
+      .end((err, res) => {
+        if (err) {
+          return done(err);
+        }
+
+        // check DB - document should be updated with:
+        User.findById(users[1]._id).then((user) => {
+          expect(user.tokens[0]).toInclude({
+            access: 'auth',
+            token: res.headers['x-auth']
+          });
+          done();
+        }).catch((e) => done(e));
+      });
+  });
+
+  it('should reject invalid login', (done) => {
+    request(app)
+      // route
+      .post('/users/login')
+      // request
+      .send({
+        email: users[1].email,
+        password: users[1].password + '1'
+      })
+      // expected response
+      .expect(400)
+      .expect((res) => {
+        expect(res.headers['x-auth']).toNotExist();
+      })
+      .end((err, res) => {
+        if (err) {
+          return done(err);
+        }
+
+        // check DB - document should not be updated
+        User.findById(users[1]._id).then((user) => {
+          expect(user.tokens.length).toBe(0);
+          done();
+        }).catch((e) => done(e));
+      });
+  });
+});
