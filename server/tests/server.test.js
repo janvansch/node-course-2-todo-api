@@ -201,8 +201,10 @@ describe('POST /users', () => {
     var password = '123mnb!';
 
     request(app)
+      // request
       .post('/users')
       .send({email, password})
+      // result expected
       .expect(200)
       .expect((res) => {
         expect(res.headers['x-auth']).toExist();
@@ -213,9 +215,10 @@ describe('POST /users', () => {
         if (err) {
           return done(err);
         }
-
+        // check DB
         User.findOne({email}).then((user) => {
           expect(user).toExist();
+          // pwd should be hashed in DB
           expect(user.password).toNotBe(password);
           done();
         });
